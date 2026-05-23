@@ -114,6 +114,31 @@ pub fn default_syntax() -> HashMap<String, String> {
     m.insert("operator_word".into(), "\x1b[35m".into());
     // Punctuation
     m.insert("punctuation".into(), String::new());
+    // -- TextMate / syntect scope mappings ---
+    // Storage (fn, let, mut, struct, impl, ...)
+    m.insert("storage".into(), "\x1b[35m".into());
+    m.insert("storage_type".into(), "\x1b[35m".into());
+    m.insert("storage_modifier".into(), "\x1b[35m".into());
+    // Entity (function names, type names, tags)
+    m.insert("entity".into(), "\x1b[33m".into());
+    m.insert("entity_name".into(), "\x1b[33m".into());
+    m.insert("entity_other".into(), "\x1b[33m".into());
+    // Support (macros, built-in functions/types)
+    m.insert("support".into(), "\x1b[36m".into());
+    m.insert("support_macro".into(), "\x1b[1;36m".into());
+    m.insert("support_function".into(), "\x1b[36m".into());
+    m.insert("support_type".into(), "\x1b[36m".into());
+    m.insert("support_constant".into(), "\x1b[36m".into());
+    // Constants (numeric literals, language constants, placeholders)
+    m.insert("constant".into(), "\x1b[34m".into());
+    m.insert("constant_numeric".into(), "\x1b[34m".into());
+    m.insert("constant_language".into(), "\x1b[36m".into());
+    m.insert("constant_character".into(), "\x1b[32m".into());
+    m.insert("constant_other".into(), "\x1b[1;34m".into());
+    // Variable
+    m.insert("variable".into(), "\x1b[37m".into());
+    m.insert("variable_other".into(), "\x1b[37m".into());
+    m.insert("variable_parameter".into(), "\x1b[37m".into());
     // Generic
     m.insert("generic_deleted".into(), "\x1b[31m".into());
     m.insert("generic_emph".into(), "\x1b[3m".into());
