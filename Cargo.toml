@@ -1,6 +1,6 @@
 [package]
 name = "marcli"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 description = "Converts CommonMark Markdown to ANSI-escaped terminal output"
 license = "MIT"
