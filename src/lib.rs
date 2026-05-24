@@ -81,11 +81,7 @@ pub fn render(markdown: &str, opts: &RenderOptions) -> String {
 }
 
 /// Render the document root node.
-fn render_document<'a>(
-    root: &'a comrak::nodes::AstNode<'a>,
-    nl: &str,
-    theme: &Theme,
-) -> String {
+fn render_document<'a>(root: &'a comrak::nodes::AstNode<'a>, nl: &str, theme: &Theme) -> String {
     let blocks: Vec<String> = root
         .children()
         .map(|child| render_block(child, nl, theme))
@@ -150,7 +146,10 @@ fn render_block<'a>(node: &'a comrak::nodes::AstNode<'a>, nl: &str, theme: &Them
                     theme.code_border, theme.code_top, info, theme.reset, nl
                 )
             } else {
-                format!("{}{}{}{}", theme.code_border, theme.code_top, theme.reset, nl)
+                format!(
+                    "{}{}{}{}",
+                    theme.code_border, theme.code_top, theme.reset, nl
+                )
             };
 
             let body = lines
@@ -224,11 +223,7 @@ fn render_block<'a>(node: &'a comrak::nodes::AstNode<'a>, nl: &str, theme: &Them
 
 // -- List items --------------------------------------------------------------
 
-fn render_bullet_item<'a>(
-    node: &'a comrak::nodes::AstNode<'a>,
-    nl: &str,
-    theme: &Theme,
-) -> String {
+fn render_bullet_item<'a>(node: &'a comrak::nodes::AstNode<'a>, nl: &str, theme: &Theme) -> String {
     let val = node.data.borrow().value.clone();
     match val {
         NodeValue::TaskItem(checked) => {
@@ -493,13 +488,7 @@ fn render_table<'a>(
     parts.join(nl)
 }
 
-fn table_border_line(
-    left: &str,
-    h: &str,
-    mid: &str,
-    right: &str,
-    col_widths: &[usize],
-) -> String {
+fn table_border_line(left: &str, h: &str, mid: &str, right: &str, col_widths: &[usize]) -> String {
     let inner: Vec<String> = col_widths.iter().map(|w| h.repeat(w + 2)).collect();
     format!("{}{}{}", left, inner.join(mid), right)
 }

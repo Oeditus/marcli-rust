@@ -1,4 +1,4 @@
-use syntect::parsing::{SyntaxSet, ScopeStackOp};
+use syntect::parsing::{ScopeStackOp, SyntaxSet};
 
 fn main() {
     let ss = SyntaxSet::load_defaults_newlines();
@@ -26,7 +26,11 @@ fn main() {
             }
             match op {
                 ScopeStackOp::Push(scope) => stack.push(*scope),
-                ScopeStackOp::Pop(n) => { for _ in 0..*n { stack.pop(); } },
+                ScopeStackOp::Pop(n) => {
+                    for _ in 0..*n {
+                        stack.pop();
+                    }
+                }
                 ScopeStackOp::Restore => stack.clear(),
                 _ => {}
             }

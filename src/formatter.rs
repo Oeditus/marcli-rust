@@ -131,7 +131,10 @@ fn scope_to_token_type(scopes: &[syntect::parsing::Scope]) -> String {
 /// Walk up the token type hierarchy:
 ///   `keyword_constant` -> `keyword` -> None
 ///   `name_builtin_pseudo` -> `name_builtin` -> `name` -> None
-fn lookup_style<'a>(syntax_map: &'a HashMap<String, String>, token_type: &str) -> Option<&'a String> {
+fn lookup_style<'a>(
+    syntax_map: &'a HashMap<String, String>,
+    token_type: &str,
+) -> Option<&'a String> {
     if let Some(style) = syntax_map.get(token_type) {
         return Some(style);
     }

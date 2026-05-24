@@ -13,6 +13,15 @@ keywords = ["markdown", "terminal", "ansi", "cli", "syntax-highlighting"]
 categories = ["command-line-interface", "text-processing", "rendering"]
 exclude = ["stuff/img/logo-128x128.png"]
 
+[[bin]]
+name = "marcli"
+path = "src/bin/marcli.rs"
+
+[profile.release]
+lto = true
+opt-level = 3
+strip = "symbols"
+
 [dependencies]
 comrak = { version = "0.36", default-features = false }
 syntect = { version = "5", default-features = false, features = ["default-syntaxes", "regex-onig"] }

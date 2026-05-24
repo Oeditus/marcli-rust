@@ -93,10 +93,7 @@ fn bullet_list_renders_with_triangle_markers() {
 fn bullet_list_preserves_inline_formatting() {
     let md = "- **bold** item\n- normal item\n";
     let result = render(md, &default_opts());
-    assert!(result.contains(&format!(
-        "  \u{25b8} {}bold{} item",
-        BOLD, RESET
-    )));
+    assert!(result.contains(&format!("  \u{25b8} {}bold{} item", BOLD, RESET)));
 }
 
 // -- Ordered lists -----------------------------------------------------------
@@ -125,10 +122,7 @@ fn code_block_with_language_header() {
     let md = "```rust\nfn main() {}\n```\n";
     let result = render(md, &default_opts());
     // Header with language
-    assert!(result.contains(&format!(
-        "{}  \u{250c}\u{2500} rust{}",
-        DIM, RESET
-    )));
+    assert!(result.contains(&format!("{}  \u{250c}\u{2500} rust{}", DIM, RESET)));
     assert!(result.contains("main"));
     // Footer
     assert!(result.contains(&format!("{}  \u{2514}\u{2500}{}", DIM, RESET)));
@@ -299,10 +293,11 @@ fn falls_back_to_plain_code_text_for_unknown_languages() {
 #[test]
 fn syntax_highlighting_can_be_disabled_via_theme() {
     let md = "```rust\nfn foo() {}\n```\n";
-    let mut theme = Theme::default();
-    theme.syntax_highlight = false;
     let opts = RenderOptions {
-        theme,
+        theme: Theme {
+            syntax_highlight: false,
+            ..Default::default()
+        },
         ..default_opts()
     };
     let result = render(md, &opts);

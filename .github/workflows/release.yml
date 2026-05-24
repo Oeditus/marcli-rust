@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+
+env:
+  CARGO_TERM_COLOR: always
+  BINARY_NAME: marcli
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact: marcli-x86_64-linux
+            binary: marcli
+
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact: marcli-aarch64-linux
+            binary: marcli
+            cross: true
+
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact: marcli-x86_64-macos
+            binary: marcli
+
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact: marcli-aarch64-macos
+            binary: marcli
+
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact: marcli-x86_64-windows
+            binary: marcli.exe
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross (for cross-compiled Linux targets)
+        if: matrix.cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Cache cargo registry and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.target }}-cargo-
+
+      - name: Build (native)
+        if: "!matrix.cross"
+        run: cargo build --release --bin marcli --target ${{ matrix.target }}
+
+      - name: Build (cross)
+        if: matrix.cross
+        run: cross build --release --bin marcli --target ${{ matrix.target }}
+
+      - name: Rename binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cp target/${{ matrix.target }}/release/${{ matrix.binary }} \
+             ${{ matrix.artifact }}
+
+      - name: Rename binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Copy-Item "target/${{ matrix.target }}/release/${{ matrix.binary }}" `
+                    "${{ matrix.artifact }}.exe"
+
+      - name: Upload artifact (Unix)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+
+      - name: Upload artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.exe
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            Release ${{ github.ref_name }}.
+
+            Pre-built binaries are attached below.  Download the one matching
+            your platform, make it executable (`chmod +x`), and place it on
+            your `$PATH`.
+
+            | File | Platform |
+            |------|----------|
+            | `marcli-x86_64-linux`   | Linux x86-64 |
+            | `marcli-aarch64-linux`  | Linux ARM64  |
+            | `marcli-x86_64-macos`   | macOS Intel  |
+            | `marcli-aarch64-macos`  | macOS Apple Silicon |
+            | `marcli-x86_64-windows.exe` | Windows x86-64 |
+          artifacts: "artifacts/**/*"
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
